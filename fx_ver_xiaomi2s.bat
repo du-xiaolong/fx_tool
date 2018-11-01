@@ -1,5 +1,5 @@
 @echo off
-title=fx 0.6 小米2s
+title=fx 0.7 小米2s未连接
 chcp 936
 color f0
 mode con cols=60 lines=15
@@ -8,12 +8,27 @@ d:
 if not exist d:\fx md d:\fx
 cd d:\fx
 echo.
+echo 等待设备连接
+adb wait-for-device
+cls
+echo 正在寻找小米2s设备....
+:lp
+set "ph=fx2.log"
+adb devices > "%ph%"
+find /i "109986c3" < "%ph%" && goto :success
+goto :lp
+:success
+del fx2.log
+cls
+echo **小米2s已连接**
+title=fx 0.7小米2已连接
+goto :begin
 :begin
 echo.
 echo 【1】导出数据包    【2】删除数据包 【3】卸载程序
 echo 【4】删除crash     【5】截图       【6】导出crash 
 echo 【7】安装apk       【8】版本信息   【9】导入数据包
-echo 【0】退出
+echo 【0】重新连接
 echo.
 :0
 echo.
@@ -22,7 +37,7 @@ set /p order=输入命令：
 set devices=
 cls
 if "%order%"=="" goto begin
-if %order%==0 exit
+if %order%==0 goto reconnect
 if %order%==1 goto 1
 if %order%==2 goto 2
 if %order%==3 goto 3
@@ -130,3 +145,13 @@ adb -s 109986c3 devices
 setlocal enabledelayedexpansion
 set /p devices=input deviceid：
 pause
+:reconnect
+cls
+echo 等待设备连接
+title=fx 0.7 小米2s未连接
+adb kill-server
+adb wait-for-device
+cls
+echo 正在寻找小米2s设备....
+goto :lp
+
